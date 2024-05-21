@@ -1,6 +1,5 @@
 import type { AnyFunction, AnyObject, ExtendedRecordObject } from '../../utils';
 import type { NSchemaService } from '../../fn-components';
-import { EmitterEvent } from '../../fn-components/services/schema.service';
 
 export interface ISchemaLoader {
   readonly services: NSchemaService.BusinessScheme;
@@ -11,15 +10,15 @@ export interface ISchemaLoader {
 }
 
 export namespace NSchemaLoader {
-  export type ControllerStructure<N extends Record<string, unknown>> = {
-    [K in keyof N]: N[K] extends infer I ? NSchemaService.ControllerHandler<I> : N[K];
-  };
+  export type ControllerStructure<S extends string> = {
+    [key in S]: NSchemaService.Controller
+  }
 
   export type SubscriberStructure<N extends Record<string, unknown>> = {
-    [K in keyof N]: N[K] extends infer I ? NSchemaService.SubscriberHandler<I> : N[K];
+    [K in keyof N]: N[K] extends infer I ? NSchemaService.SubscriberHandler<I> : never
   };
 
-  export type StoreStructure<B = AnyObject, A = AnyObject> = NSchemaService.Store<B, A>;
+  export type StoreStructure<B = any, A = any> = NSchemaService.Store<B, A>;
 
   export type ViewStructure<N extends string, A extends NSchemaService.AuthScope, P = unknown> = {
     name: N;
@@ -47,7 +46,7 @@ export namespace NSchemaLoader {
     controller?: ControllerStructure;
     emitter?: EmitterStructure;
     store?: StoreStructure;
-    views: ViewStructure | ViewStructure[];
+    views?: ViewStructure | ViewStructure[];
     validator?: ValidatorStructure;
     helper?: HelperStructure;
     dictionary?: DictionaryStructure | DictionaryStructure[];

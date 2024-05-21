@@ -102,6 +102,7 @@ export class FunctionalityAgent implements IFunctionalityAgent {
         }
 
         if (config) {
+          if (config.method) options.method = config.method;
           if (config.scope) options.scope = config.scope
           if (config.version) options.version = config.version
           if (config.data) options.data = config.data

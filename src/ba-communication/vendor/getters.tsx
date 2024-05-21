@@ -1,4 +1,3 @@
-import { ReactElement } from 'react';
 import { container } from '~container';
 import { CoreSymbols } from '~symbols';
 
@@ -20,7 +19,7 @@ export type ComponentProps<
 > = {
   storybook: S;
   space: D;
-  name: N;
+  component: N;
   props?: P;
 };
 
@@ -31,13 +30,11 @@ export const Component = <
   P = any,
 >(
   cProps: ComponentProps<S, D, N, P>
-): ReactElement => {
-  const { storybook, space, name } = cProps;
+): any => {
+  const { storybook, space, component } = cProps;
 
 
   const services = container.get<IStorybookLoader>(CoreSymbols.StorybookLoader).storybooks;
-
-  console.log('@services', services);
 
   const dSpace = services.get(storybook);
   if (!dSpace) {
@@ -49,15 +46,15 @@ export const Component = <
     throw new Error(`Space storage "${space}" not found in storybook "${storybook}".`);
   }
 
-  const component = vStorage.get(name);
+  const compo = vStorage.get(component);
 
-  if (!component) {
+  if (!compo) {
     throw new Error(
       `UI components not found in space storage "${space}" in storybook "${storybook}". `
     );
   }
 
-  return cProps.props ? component(cProps.props) : component();
+  return cProps.props ? compo(cProps.props) : compo();
 };
 
 export type ViewProps<
@@ -79,7 +76,7 @@ export const View = <
   P = never,
 >(
   viewProps: ViewProps<S, D, V, P>
-): ReactElement => {
+): any => {
   const { service, domain, props, view } = viewProps;
 
   const services = container.get<ISchemeService>(CoreSymbols.SchemeService).services;

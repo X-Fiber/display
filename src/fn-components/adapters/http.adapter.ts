@@ -35,8 +35,8 @@ export class HttpAdapter extends AbstractAdapter<'http'> implements IHttpAdapter
         port: 11000
       },
       urls: {
-        api:  'v1/call/api',
-        exception: 'v1/exception-tunnel'
+        api:  '/v1/call/api',
+        exception: '/v1/exception-tunnel'
       },
       refresh: {
         url: 'v1/update-token',
@@ -170,11 +170,10 @@ export class HttpAdapter extends AbstractAdapter<'http'> implements IHttpAdapter
 
     try {
       const response = await this._requester.request<RES>({
-        url: `${protocol}://${host}:${port}${this._config.urls.api}/${service}${domain}/${config.version}/${route}${queries}`,
+        url: `${protocol}://${host}:${port}${this._config.urls.api}/${service}/${domain}/${config.version}/${route}${options.params ? '/' + Object.values(options.params).join('/') : ''}${queries}`,
         headers: options.headers,
         method: options.method,
         data: options.data,
-        params: options.params,
       });
 
       return {

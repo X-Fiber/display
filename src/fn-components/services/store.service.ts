@@ -11,6 +11,7 @@ import type {
   NStoreService, ILocalizationService,
   Zustand
 } from '~types';
+import { create } from 'zustand';
 
 @injectable()
 export class StoreService extends AbstractService implements IStoreService {

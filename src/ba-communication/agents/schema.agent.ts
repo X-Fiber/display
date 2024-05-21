@@ -5,9 +5,7 @@ import { container } from '~container';
 import type { FC } from 'react';
 import type {
   ExtendedRecordObject,
-  IAuthProvider,
   IFunctionalityAgent,
-  ILocalizationService,
   ISchemaAgent,
   ISchemeService,
   IStoreService,
@@ -21,16 +19,20 @@ export class SchemaAgent implements ISchemaAgent {
   constructor(
     @inject(CoreSymbols.SchemeService)
     private readonly _schemaService: ISchemeService,
-    @inject(CoreSymbols.LocalizationService)
-    private readonly _localizationService: ILocalizationService,
     @inject(CoreSymbols.StoreService)
     private readonly _storeService: IStoreService,
-    @inject(CoreSymbols.AuthProvider)
-    private readonly _authService: IAuthProvider
   ) {}
 
   public get services(): NSchemaService.BusinessScheme {
     return this._schemaService.services;
+  }
+
+  public getController = <T, S extends string = string, D extends string = string, C extends string = string>(service: S, domain:D, controller: C): T => {
+    return this._schemaService.getController<T>(service, domain, controller)
+  }
+
+  public getStore = <T, S extends string = string, D extends string = string>(service: S, domain:D): T => {
+    return this._storeService.getStore<T>(service, domain)
   }
 
   public getServiceDomains<S extends string = string>(service: S): NSchemaService.Domains {
@@ -88,7 +90,7 @@ export class SchemaAgent implements ISchemaAgent {
     DICT extends ExtendedRecordObject = ExtendedRecordObject,
     L extends string = string,
   >(service: S, domain: DOM, language: L): DICT {
-    return this._localizationService.getDictionary<S, DOM, L, DICT>(service, domain, language);
+    throw new Error('Method not implemented')
   }
 
   public getDefaultLnResource<
@@ -102,12 +104,7 @@ export class SchemaAgent implements ISchemaAgent {
     resource: KeyStringLiteralBuilder<DICT>,
     substitutions?: SUBS
   ): string {
-    return this._localizationService.getDefaultLnResource<S, DOM, DICT, SUBS>(
-      service,
-      domain,
-      resource,
-      substitutions
-    );
+    throw new Error('Method not implemented')
   }
 
   public getResource<
@@ -123,19 +120,6 @@ export class SchemaAgent implements ISchemaAgent {
     substitutions?: SUBS,
     language?: L
   ): string {
-    return this._localizationService.getResource<S, DOM, DICT, SUBS, L>(
-      service,
-      domain,
-      resource,
-      substitutions,
-      language
-    );
-  }
-
-  public getStore<SER extends string = string, D extends string = string, STO = any>(
-    service: SER,
-    domain: D
-  ): () => STO {
-    return this._storeService.getStore<STO>(service, domain);
+    throw new Error('Method not implemented')
   }
 }

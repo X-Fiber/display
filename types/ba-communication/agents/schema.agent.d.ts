@@ -5,6 +5,9 @@ import type { ExtendedRecordObject, KeyStringLiteralBuilder } from '../../utils'
 export interface ISchemaAgent {
   readonly services: NSchemaService.BusinessScheme;
 
+  getController<T, S extends string = string, D extends string = string, C extends string = string>(service: S, domain:D, controller: C): T
+
+  // old
   getServiceDomains<S extends string = string>(service: S): NSchemaService.Domains;
   getDomainsDocuments<S extends string = string, D extends string = string>(
     service: S,

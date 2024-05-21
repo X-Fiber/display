@@ -1,6 +1,6 @@
 import { injectable } from '~packages';
 
-import {
+import type {
   AnyFunction,
   ExtendedRecordObject,
   ISchemaLoader,
@@ -47,11 +47,11 @@ export class SchemaLoader implements ISchemaLoader {
 
 
     const documents: NSchemaService.Documents = {
-      controller: new Map<string, NSchemaService.ControllerHandler>(),
+      controller: new Map<string, NSchemaService.Controller>(),
       emitter: new Map<string, NSchemaService.EmitterEvent>(),
       dictionaries: new Map<string, ExtendedRecordObject>(),
       store: null,
-      views: new Map<string, NSchemaService.ViewHandler<'public:route'>>(),
+      views: new Map<string, NSchemaService.ViewHandler<'public'>>(),
       validator: new Map<string, NSchemaService.ValidatorHandler>(),
       helper: new Map<string, AnyFunction>(),
     };
@@ -82,9 +82,9 @@ export class SchemaLoader implements ISchemaLoader {
   }
 
   private _setController(
-    structure: NSchemaLoader.ControllerStructure<Record<string, unknown>>
-  ): Map<string, NSchemaService.ControllerHandler> {
-    const collection = new Map<string, NSchemaService.ControllerHandler>();
+    structure: NSchemaLoader.ControllerStructure<string>
+  ): Map<string, NSchemaService.Controller> {
+    const collection = new Map<string, NSchemaService.Controller>();
 
     for (const name in structure) {
       const handler = structure[name];
@@ -124,10 +124,10 @@ export class SchemaLoader implements ISchemaLoader {
 
   private _setView(
     structure:
-      | NSchemaLoader.ViewStructure<string, 'public:route'>
-      | NSchemaLoader.ViewStructure<string, 'public:route'>[]
-  ): Map<string, NSchemaService.ViewHandler<'public:route'>> {
-    const collection = new Map<string, NSchemaService.ViewHandler<'public:route'>>();
+      | NSchemaLoader.ViewStructure<string, 'public'>
+      | NSchemaLoader.ViewStructure<string, 'public'>[]
+  ): Map<string, NSchemaService.ViewHandler<'public'>> {
+    const collection = new Map<string, NSchemaService.ViewHandler<'public'>>();
 
     if (Array.isArray(structure)) {
       structure.forEach((view) => collection.set(view.name, view.view));

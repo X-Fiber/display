@@ -1,4 +1,5 @@
 import { injectable } from '~packages';
+
 import { AbstractService } from './abstract.service';
 
 import type {
@@ -13,11 +14,30 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
   private _CONFIG: NDiscoveryService.EnvsConfig | undefined;
 
   protected init(): boolean {
+
+    this._CONFIG = this._parseConfig() as NDiscoveryService.EnvsConfig
+
     return true;
   }
 
   public get nodeEnv(): string {
     return process.env.NODE_ENV ?? 'development';
+  }
+
+  private _parseConfig() {
+    return Object.entries(process.env)
+      .filter(([key]) => key.startsWith('__x_fiber__'))
+      .reduce((parsedEnv, [key, value]) => {
+        const keys = key.substring('__x_fiber__'.length).split('_');
+        keys.reduce((obj: any, currentKey, index) => {
+          if (index === keys.length - 1) {
+            obj[currentKey] = value;
+          } else {
+            return obj[currentKey] = obj[currentKey] || {};
+          }
+        }, parsedEnv);
+        return parsedEnv;
+      }, {});
   }
 
   protected destroy(): void {

@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ESNext",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "module": "CommonJS",
     "allowJs": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -30,15 +29,7 @@
       "~utils": ["./src/fn-components/utils/index.ts"],
       "~types": ["./types/index.d.ts"]
     },
-    "noEmit": false
   },
-  "include": [
-    "next-env.d.ts",
-    "./src/**/*",
-    "./server/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/pages"
-  ],
+  "include": ["./src/**/*",],
+  "exclude": ["node_modules",],
 }

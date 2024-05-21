@@ -1,4 +1,4 @@
-import { injectable, inject, events } from '~packages';
+import { injectable, inject } from '~packages';
 import { container } from '~container';
 import { CoreSymbols } from '~symbols';
 import { ErrorCode } from '~common';
@@ -22,7 +22,6 @@ import type {
 export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
   protected _config: NAbstractAdapter.WsConfig
 
-  private readonly _emitter = new events.EventEmitter();
   private _CONNECTION: WebSocket | undefined;
 
   constructor(
@@ -200,9 +199,9 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
         };
 
         switch (eStorage.scope) {
-          case 'public:route':
+          case 'public':
             break;
-          case 'private:route':
+          case 'private':
             break;
         }
 
@@ -211,11 +210,11 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
           schemaAgent: container.get<ISchemaAgent>(CoreSymbols.SchemaAgent),
         };
 
-        const result = await eStorage.handler(data.payload, agents, context);
+        const result = await eStorage.handler(agents, context, data.payload);
         if (result) {
-          this._emitter.emit(name, result);
+          // this._emitter.emit(name, result);
         } else {
-          this._emitter.emit(name);
+          // this._emitter.emit(name);
         }
       } else {
         // TODO: resolve Guards.isCorrectEvent(data.type) false case
@@ -232,7 +231,7 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
     listener: AnyFunction
   ): void {
     const name = this._getEventName(type, version, event);
-    this._emitter.once(name, listener);
+    // this._emitter.once(name, listener);
   }
 
   public subscribe<E extends string = string>(
@@ -242,7 +241,7 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
     listener: AnyFunction
   ): void {
     const name = this._getEventName(type, version, event);
-    this._emitter.on(name, listener);
+    // this._emitter.on(name, listener);
   }
 
   public publish(event: NSchemaService.ServerEvent): void {

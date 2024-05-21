@@ -1,12 +1,11 @@
 import type {
   AnyFunction,
-  AnyObject,
   NSchemaLoader,
   NSchemaService,
   NStorybookLoader,
 } from '~types';
 
-export const setController = <S extends Record<string, unknown>>(
+export const setController = <S extends string>(
   structure: NSchemaLoader.ControllerStructure<S>
 ): NSchemaLoader.ControllerStructure<S> => {
   return structure;
@@ -25,7 +24,7 @@ export const setDictionary = <L extends string, D extends NSchemaService.Diction
   return { language, dictionary };
 };
 
-export const setStore = <B = AnyObject, A = AnyObject>(
+export const setStore = <B = any, A = any>(
   store: NSchemaLoader.StoreStructure<B, A>
 ): NSchemaLoader.StoreStructure<B, A> => {
   return store;
@@ -50,7 +49,7 @@ export const setHelper = <S extends Record<string, AnyFunction>>(
   return structure;
 };
 
-export const setPointer = <N extends string>(
+export const setRegistry = <N extends string>(
   name: N,
   documents: NSchemaLoader.DocumentsStructure
 ): NSchemaLoader.DomainStructure => {

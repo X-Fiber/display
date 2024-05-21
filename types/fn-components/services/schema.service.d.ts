@@ -12,15 +12,18 @@ import Joi from 'joi';
 
 export interface ISchemeService extends IAbstractService {
   readonly services: NSchemaService.BusinessScheme;
+
+  getController<T>(service:string, domain: string, controller: string): T
+  getStore(service: string, domain: string):any
 }
 
 export namespace NSchemaService {
-  export type AuthScope = 'public:route' | 'private:route';
-  export type Context<A extends AuthScope = AuthScope, U = any, S = any> = A extends 'public:route'
+  export type AuthScope = 'public' | 'private';
+  export type Context<A extends AuthScope = AuthScope, U = any, S = any> = A extends 'public'
     ? {
         store: any;
       }
-    : A extends 'private:route'
+    : A extends 'private'
       ? {
           store: any;
           user: U;
@@ -41,16 +44,21 @@ export namespace NSchemaService {
     skipHydration?: boolean; // default true
   };
 
-  export type ControllerHandler = <A extends AuthScope, D = unknown, R = unknown>(
+  export type ControllerHandler = <A extends AuthScope>(
     agents: NSchemaService.Agents,
     context: Context<A>,
-    data: D
-  ) => R | Promise<R>;
+    data: any
+  ) => any
+
+  export type Controller = {
+    scope: AuthScope
+    handler: ControllerHandler
+  }
 
   export type SubscriberHandler = <A extends AuthScope = AuthScope, D = any, R = any>(
-    payload: D,
     agents: NSchemaService.Agents,
-    context: Context<A>
+    context: Context<A>,
+    payload: D,
   ) => Promise<R | void>;
 
   export type EmitterEvent<E extends string = string> = {
@@ -99,7 +107,7 @@ export namespace NSchemaService {
   ) => ValidateErrors | void;
 
   export type Documents = {
-    controller: Map<string, ControllerHandler>;
+    controller: Map<string, Controller>;
     emitter: Map<string, EmitterEvent>;
     dictionaries: Map<string, Dictionary>;
     store: Store | null;

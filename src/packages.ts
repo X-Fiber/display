@@ -3,10 +3,9 @@ import axios from 'axios';
 // external
 import joi from 'joi';
 import { jwtDecode } from 'jwt-decode';
-import { create } from 'zustand';
+import { create, createStore } from 'zustand';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import { Container, ContainerModule } from 'inversify';
-import { EventEmitter } from 'eventemitter3';
 
 export { joi };
 export { axios };
@@ -17,12 +16,10 @@ export const jwt = {
 };
 export const inversify = { Container, ContainerModule };
 
-export const events = {
-  EventEmitter: EventEmitter,
-};
 
 export const zustand = {
   create: create,
+  createStore: createStore,
   persist: persist,
   createJSONStorage: createJSONStorage,
   devtools: devtools,
