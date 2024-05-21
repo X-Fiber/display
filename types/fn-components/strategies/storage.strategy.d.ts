@@ -1,4 +1,4 @@
-import { KeyStringLiteralBuilder } from '../../utils';
+import type { KeyStringLiteralBuilder } from '../../utils';
 
 export interface IStorageStrategy {
   readonly length: number;

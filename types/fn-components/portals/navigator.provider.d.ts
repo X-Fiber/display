@@ -1,19 +1,19 @@
-export interface INavigatorProvider {
+export interface INavigatorPortal {
   readonly cookieEnabled: boolean;
   readonly isOnline: boolean;
-  readonly userAgent: string
+  readonly userAgent: string;
 
-  readonly networkInfo: NNavigatorProvider.NetworkInfo
-  readonly defaultLanguage: NNavigatorProvider.LanguagePayload;
-  readonly supportedLanguages: NNavigatorProvider.LanguagePayload[];
+  readonly networkInfo: NNavigatorPortal.NetworkInfo;
+  readonly defaultLanguage: NNavigatorPortal.LanguagePayload;
+  readonly supportedLanguages: NNavigatorPortal.LanguagePayload[];
 
   readonly useCoordinates(
-    successCallback: NNavigatorProvider.SuccessCallback,
-    errorCallback: NNavigatorProvider.ErrorCallback
-  ): void
+    successCallback: NNavigatorPortal.SuccessCallback,
+    errorCallback: NNavigatorPortal.ErrorCallback
+  ): void;
 }
 
-export namespace NNavigatorProvider {
+export namespace NNavigatorPortal {
   export type LanguagePayload = {
     shortLn: string;
     regionLn: string;
@@ -21,28 +21,27 @@ export namespace NNavigatorProvider {
   };
 
   export interface BaseNetworkInfo {
-    status: 'OK' | 'FAIL'
+    status: 'OK' | 'FAIL';
   }
 
   export type ConnectionInfo = {
-    downlink: number
-    effectiveType: string
-    rtt: number
-    saveDate: boolean
-  }
+    downlink: number;
+    effectiveType: string;
+    rtt: number;
+    saveDate: boolean;
+  };
 
   export interface NetworkInfoOk extends BaseNetworkInfo {
-    status: 'OK'
-    connection: ConnectionInfo
+    status: 'OK';
+    connection: ConnectionInfo;
   }
 
   export interface NetworkInfoFAIL extends BaseNetworkInfo {
-    status: 'FAIL'
-    message: string
+    status: 'FAIL';
+    message: string;
   }
 
-
-  export type NetworkInfo = NetworkInfoOk | NetworkInfoFAIL
+  export type NetworkInfo = NetworkInfoOk | NetworkInfoFAIL;
 
   export type ErrorCode =
     | 'PERMISSION_DENIED'

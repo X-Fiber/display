@@ -7,17 +7,18 @@ import {
   HttpAdapter,
   WsAdapter,
   StorageFactory,
-  StorageProvider,
-  NavigatorProvider,
+  StoragePortal,
+  NavigatorPortal,
   DiscoveryService,
-  SchemaService,
+  SchemeService,
   CombinationService,
   LocalizationService,
   SessionService,
   StoreService,
   AuthProvider,
   LocalStorageStrategy,
-  SessionStorageStrategy, StorybookService,
+  SessionStorageStrategy,
+  StorybookService,
 } from '../fn-components';
 import {
   SchemaLoader,
@@ -35,23 +36,24 @@ import type {
   ICombinationService,
   IInitiator,
   ILocalizationService,
-  INavigatorProvider,
+  INavigatorPortal,
   ISchemaAgent,
   ISchemaLoader,
   ISchemeService,
   ISessionService,
   IStorageFactory,
-  IStorageProvider,
+  IStoragePortal,
   IStorageStrategy,
   IStoreService,
-  IStorybookLoader, IStorybookService,
+  IStorybookLoader,
+  IStorybookService,
 } from '~types';
 
 export const EdgeModule = new inversify.ContainerModule((bind) => {
   // Services
   bind<IDiscoveryService>(CoreSymbols.DiscoveryService).to(DiscoveryService).inSingletonScope();
-  bind<IStorybookService>(CoreSymbols.StorybookService).to(StorybookService).inSingletonScope()
-  bind<ISchemeService>(CoreSymbols.SchemeService).to(SchemaService).inSingletonScope();
+  bind<IStorybookService>(CoreSymbols.StorybookService).to(StorybookService).inSingletonScope();
+  bind<ISchemeService>(CoreSymbols.SchemeService).to(SchemeService).inSingletonScope();
   bind<ICombinationService>(CoreSymbols.CombinationService)
     .to(CombinationService)
     .inSingletonScope();
@@ -81,8 +83,8 @@ export const EdgeModule = new inversify.ContainerModule((bind) => {
   bind<IStorageFactory>(CoreSymbols.StorageFactory).to(StorageFactory).inSingletonScope();
 
   // Providers
-  bind<IStorageProvider>(CoreSymbols.StorageProvider).to(StorageProvider).inTransientScope();
-  bind<INavigatorProvider>(CoreSymbols.NavigatorProvider).to(NavigatorProvider).inTransientScope();
+  bind<IStoragePortal>(CoreSymbols.StoragePortal).to(StoragePortal).inTransientScope();
+  bind<INavigatorPortal>(CoreSymbols.NavigatorPortal).to(NavigatorPortal).inTransientScope();
   bind<IAuthProvider>(CoreSymbols.AuthProvider).to(AuthProvider).inTransientScope();
 
   // Agents

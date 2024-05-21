@@ -20,5 +20,5 @@ export namespace NSentryIntegration {
     | 'replaysSessionSampleRate'
     | 'replaysOnErrorSampleRate'
     | 'logLevel'
-  >
+  >;
 }

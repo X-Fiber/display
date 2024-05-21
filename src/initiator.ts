@@ -2,13 +2,14 @@ import { injectable, inject } from '~packages';
 import { CoreSymbols } from '~symbols';
 
 import type {
+  IInitiator,
   IDiscoveryService,
   ICombinationService,
-  IInitiator,
   ILocalizationService,
   ISchemeService,
   ISessionService,
-  IStoreService, IStorybookService,
+  IStoreService,
+  IStorybookService,
 } from '~types';
 
 @injectable()
@@ -27,12 +28,12 @@ export class Initiator implements IInitiator {
     @inject(CoreSymbols.SessionService)
     private readonly _sessionService: ISessionService,
     @inject(CoreSymbols.StoreService)
-    private readonly _storeService: IStoreService,
+    private readonly _storeService: IStoreService
   ) {}
 
   public start(): void {
     this._discoveryService.start();
-    this._storybookService.start()
+    this._storybookService.start();
     this._schemeService.start();
     this._combinationService.start();
     this._storeService.start();
@@ -46,7 +47,7 @@ export class Initiator implements IInitiator {
     this._storeService.stop();
     this._combinationService.stop();
     this._schemeService.stop();
-    this._storybookService.stop()
+    this._storybookService.stop();
     this._discoveryService.stop();
   }
 }

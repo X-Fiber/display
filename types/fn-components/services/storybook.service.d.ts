@@ -6,9 +6,7 @@ export interface IStorybookService extends IAbstractService {
 }
 
 export namespace NStorybookService {
-  export type Component<P = any> = (props?: P) => JSX.Element<P>;
-
-  export type Components = Map<string, Component>;
+  export type Component<P = any> = (props: P) => JSX.Element<P>;
   export type Space = Map<string, Component>;
   export type Storybook = Map<string, Space>;
 }

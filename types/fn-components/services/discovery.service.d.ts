@@ -51,22 +51,22 @@ export namespace NDiscoveryService {
   export type EnvsConfig = {
     adapters: {
       http: {
-        enable: boolean
+        enable: boolean;
         connect: {
-          protocol: string
-          host: string
-          port: number
-        }
+          protocol: string;
+          host: string;
+          port: number;
+        };
         urls: {
-          api: string
-          exception: string
-        }
+          api: string;
+          exception: string;
+        };
 
         refresh: {
-          url: string
-          method: HttpMethod
-        }
-      }
+          url: string;
+          method: HttpMethod;
+        };
+      };
       ws: {
         enable: boolean;
         connect: {
@@ -75,9 +75,9 @@ export namespace NDiscoveryService {
           port: number;
         };
         refresh: {
-          url: string
-          method: HttpMethod
-        }
+          url: string;
+          method: HttpMethod;
+        };
       };
     };
     services: {
@@ -115,14 +115,14 @@ export namespace NDiscoveryService {
 
   export type KeyBuilder<
     T,
-    F extends string | boolean | number | (string | boolean | number)[],
+    F extends string | boolean | number | (string | boolean | number)[]
   > = T extends Record<string, unknown>
     ? {
-      [K in keyof T]: T[K] extends F
-        ? `${string & K}`
-        : K extends string
+        [K in keyof T]: T[K] extends F
+          ? `${string & K}`
+          : K extends string
           ? `${string & K}.${KeyBuilder<T[K], F>}`
           : never;
-    }[keyof T]
+      }[keyof T]
     : string;
 }

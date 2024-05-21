@@ -2,8 +2,8 @@ import type {
   IAuthProvider,
   IDiscoveryService,
   IHttpAdapter,
-  INavigatorProvider,
-  IStorageProvider,
+  INavigatorPortal,
+  IStoragePortal,
   IWsAdapter,
 } from '../../fn-components';
 
@@ -30,8 +30,8 @@ export namespace NFunctionalityAgent {
   };
 
   export type Storage = {
-    readonly localStorage: IStorageProvider['localStorage'];
-    readonly sessionStorage: IStorageProvider['sessionStorage'];
+    readonly localStorage: IStoragePortal['localStorage'];
+    readonly sessionStorage: IStoragePortal['sessionStorage'];
   };
 
   export type Event = {
@@ -41,14 +41,14 @@ export namespace NFunctionalityAgent {
   };
 
   export type Navigator = {
-    readonly cookieEnabled: INavigatorProvider['cookieEnabled'];
-    readonly isOnline: INavigatorProvider['isOnline'];
-    readonly userAgent: INavigatorProvider['userAgent'];
-    readonly networkInfo: INavigatorProvider['networkInfo'];
-    readonly defaultLanguage: INavigatorProvider['defaultLanguage'];
-    readonly supportedLanguages: INavigatorProvider['supportedLanguages'];
+    readonly cookieEnabled: INavigatorPortal['cookieEnabled'];
+    readonly isOnline: INavigatorPortal['isOnline'];
+    readonly userAgent: INavigatorPortal['userAgent'];
+    readonly networkInfo: INavigatorPortal['networkInfo'];
+    readonly defaultLanguage: INavigatorPortal['defaultLanguage'];
+    readonly supportedLanguages: INavigatorPortal['supportedLanguages'];
 
-    readonly useCoordinates: INavigatorProvider['useCoordinates'];
+    readonly useCoordinates: INavigatorPortal['useCoordinates'];
   };
 
   export type Auth = {

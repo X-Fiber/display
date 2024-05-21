@@ -1,5 +1,5 @@
-import { IAbstractService } from './abstract.service';
-import { Zustand } from '../../packages';
+import type { IAbstractService } from './abstract.service';
+import type { Zustand } from '../../packages';
 
 export interface IStoreService extends IAbstractService {
   readonly rootStore: NStoreService.RootStore;
@@ -33,6 +33,4 @@ export namespace NStoreService {
     string,
     Zustand.StateCreator<T> | Zustand.PersistStateCreator<T>
   >;
-
-  // new
 }

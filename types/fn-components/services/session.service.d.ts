@@ -5,11 +5,6 @@ export interface ISessionService extends IAbstractService {
 }
 
 export namespace NSessionService {
-  export type SessionIdentifiers = {
-    sessionId: string;
-    userId: string;
-  };
-
   export type ErrorType = 'EXCEPTION' | 'ERROR' | 'VALIDATION';
 
   export type ClientEvent =
@@ -61,18 +56,18 @@ export namespace NSessionService {
   export type EventPayload<E extends ClientEvent> = E extends 'handshake'
     ? HandShakePayload
     : E extends 'handshake.error'
-      ? HandshakeErrorPayload
-      : E extends 'authenticate'
-        ? AuthenticatePayload
-        : E extends 'authenticate.error'
-          ? AuthenticateErrorPayload
-          : E extends 'session:to:session'
-            ? SessionToSessionPayload
-            : E extends 'session:to:session.error'
-              ? SessionToSessionErrorPayload
-              : E extends 'broadcast:to:service'
-                ? string
-                : E extends 'upload:page'
-                  ? UploadPagePayload
-                  : never;
+    ? HandshakeErrorPayload
+    : E extends 'authenticate'
+    ? AuthenticatePayload
+    : E extends 'authenticate.error'
+    ? AuthenticateErrorPayload
+    : E extends 'session:to:session'
+    ? SessionToSessionPayload
+    : E extends 'session:to:session.error'
+    ? SessionToSessionErrorPayload
+    : E extends 'broadcast:to:service'
+    ? string
+    : E extends 'upload:page'
+    ? UploadPagePayload
+    : never;
 }

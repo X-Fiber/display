@@ -2,7 +2,7 @@ import { container } from '~container';
 import { CoreSymbols } from '~symbols';
 import { SCHEME_STORYBOOKS, SCHEME_SERVICES, CORE_EXTENSIONS } from '~common';
 
-import { IInitiator, NSchemaLoader, NStorybookLoader } from '~types';
+import { IInitiator, ISchemeService, NSchemaLoader, NStorybookLoader } from '~types';
 
 const initiator = container.get<IInitiator>(CoreSymbols.Initiator);
 

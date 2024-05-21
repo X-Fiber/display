@@ -1,9 +1,9 @@
 import { injectable } from '~packages';
 
-import type { INavigatorProvider, NNavigatorProvider } from '~types';
+import type { INavigatorPortal, NNavigatorPortal } from '~types';
 
 @injectable()
-export class NavigatorProvider implements INavigatorProvider {
+export class NavigatorPortal implements INavigatorPortal {
   private _navigator: typeof navigator = navigator;
 
   public get cookieEnabled(): boolean {
@@ -18,11 +18,11 @@ export class NavigatorProvider implements INavigatorProvider {
     return this._navigator.userAgent;
   }
 
-  public get networkInfo(): NNavigatorProvider.NetworkInfo {
+  public get networkInfo(): NNavigatorPortal.NetworkInfo {
     if ('connection' in this._navigator) {
       return {
         status: 'OK',
-        connection: this._navigator.connection as NNavigatorProvider.ConnectionInfo,
+        connection: this._navigator.connection as NNavigatorPortal.ConnectionInfo,
       };
     } else {
       return {
@@ -32,7 +32,7 @@ export class NavigatorProvider implements INavigatorProvider {
     }
   }
 
-  public get defaultLanguage(): NNavigatorProvider.LanguagePayload {
+  public get defaultLanguage(): NNavigatorPortal.LanguagePayload {
     const languageCases = this._navigator.language.split('-');
 
     return {
@@ -42,7 +42,7 @@ export class NavigatorProvider implements INavigatorProvider {
     };
   }
 
-  public get supportedLanguages(): NNavigatorProvider.LanguagePayload[] {
+  public get supportedLanguages(): NNavigatorPortal.LanguagePayload[] {
     return this._navigator.languages.map((language) => {
       const ln = language.split('-');
 
@@ -55,14 +55,14 @@ export class NavigatorProvider implements INavigatorProvider {
   }
 
   public useCoordinates(
-    successCallback: NNavigatorProvider.SuccessCallback,
-    errorCallback: NNavigatorProvider.ErrorCallback
+    successCallback: NNavigatorPortal.SuccessCallback,
+    errorCallback: NNavigatorPortal.ErrorCallback
   ): void {
     if ('geolocation' in this._navigator) {
       this._navigator.geolocation.getCurrentPosition(
         (position) => successCallback(position.coords),
         (positionError) => {
-          let code: NNavigatorProvider.ErrorCode;
+          let code: NNavigatorPortal.ErrorCode;
           switch (positionError.code) {
             case positionError.PERMISSION_DENIED:
               code = 'PERMISSION_DENIED';

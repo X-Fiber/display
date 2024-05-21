@@ -1,22 +1,16 @@
 import { injectable, inject, jwt } from '~packages';
 import { container } from '~container';
 import { CoreSymbols } from '~symbols';
-import { Guards } from '../utils';
+import { Guards } from '~utils';
 
-import type {
-  IAuthProvider,
-  IDiscoveryService,
-  IStorageStrategy,
-  NAuthProvider,
-} from '~types';
+import type { IAuthProvider, IDiscoveryService, IStorageStrategy, NAuthProvider } from '~types';
 
 @injectable()
 export class AuthProvider implements IAuthProvider {
   constructor(
     @inject(CoreSymbols.DiscoveryService)
-    private readonly _discoveryService: IDiscoveryService,
-  ) {
-  }
+    private readonly _discoveryService: IDiscoveryService
+  ) {}
 
   public setTokens(access: string, refresh: string): void {
     const storage = container.get<IStorageStrategy>(CoreSymbols.LocalStorageStrategy);
@@ -26,19 +20,19 @@ export class AuthProvider implements IAuthProvider {
   }
 
   public getTokenPayload<P>(): P {
-    const scope = this.getAuthScope()
+    const scope = this.getAuthScope();
 
-    let payload: P
+    let payload: P;
     switch (scope.status) {
       case 'access:actual':
       case 'access:expired':
-        payload = this._decodeJWT<P>(scope.token).payload
-        break
+        payload = this._decodeJWT<P>(scope.token).payload;
+        break;
       case 'refresh:expired':
-        throw new Error('Token expired')
+        throw new Error('Token expired');
     }
 
-    return payload
+    return payload;
   }
 
   public updateAccessToken(token: string): void {
@@ -48,23 +42,23 @@ export class AuthProvider implements IAuthProvider {
   }
 
   public getAuthScope(): NAuthProvider.AuthScope {
-    const access = this._isTokenExpired('x-user-access-token')
+    const access = this._isTokenExpired('x-user-access-token');
     if (access) {
       return {
         status: 'access:actual',
-        token: access
-      }
+        token: access,
+      };
     }
 
-    const refresh = this._isTokenExpired('x-user-refresh-token')
+    const refresh = this._isTokenExpired('x-user-refresh-token');
     if (refresh) {
-      return  {
+      return {
         status: 'access:expired',
-        token: refresh
-      }
+        token: refresh,
+      };
     }
 
-    return {status: 'refresh:expired'}
+    return { status: 'refresh:expired' };
   }
 
   private _isTokenExpired(type: NAuthProvider.AuthHeaders): string | null {
@@ -72,15 +66,15 @@ export class AuthProvider implements IAuthProvider {
       .get<IStorageStrategy>(CoreSymbols.LocalStorageStrategy)
       .getString(type, '');
 
-    if (token.length === 0) return null
+    if (token.length === 0) return null;
 
-      const checkAccessDiff = this._discoveryService.getNumber('services.auth.checkAccessDiff', 30)
-      const { exp } = this._decodeJWT(token);
-      const current = Math.round(Date.now() / 1000);
-      const diff = exp - (current + checkAccessDiff);
-      if (diff < 0) return null
+    const checkAccessDiff = this._discoveryService.getNumber('services.auth.checkAccessDiff', 30);
+    const { exp } = this._decodeJWT(token);
+    const current = Math.round(Date.now() / 1000);
+    const diff = exp - (current + checkAccessDiff);
+    if (diff < 0) return null;
 
-    return token
+    return token;
   }
 
   private _decodeJWT<T>(token: string): { exp: number; iat: number; diff: number; payload: T } {
@@ -94,7 +88,7 @@ export class AuthProvider implements IAuthProvider {
       exp: payload.exp,
       iat: payload.iat,
       diff: payload.exp - payload.iat,
-      payload: payload.payload
+      payload: payload.payload,
     };
   }
 }

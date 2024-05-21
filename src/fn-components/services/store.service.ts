@@ -8,10 +8,10 @@ import type {
   ISchemeService,
   IStoreService,
   NSchemaService,
-  NStoreService, ILocalizationService,
-  Zustand
+  NStoreService,
+  ILocalizationService,
+  Zustand,
 } from '~types';
-import { create } from 'zustand';
 
 @injectable()
 export class StoreService extends AbstractService implements IStoreService {
@@ -26,7 +26,7 @@ export class StoreService extends AbstractService implements IStoreService {
     @inject(CoreSymbols.SchemeService)
     private readonly _schemaService: ISchemeService,
     @inject(CoreSymbols.LocalizationService)
-    private readonly _localizationService: ILocalizationService,
+    private readonly _localizationService: ILocalizationService
   ) {
     super();
   }
@@ -122,7 +122,7 @@ export class StoreService extends AbstractService implements IStoreService {
       i18n: {
         defaultLanguage: this._localizationService.defaultLanguage,
         fallbackLanguage: this._localizationService.fallbackLanguage,
-        supportedLanguages: this. _localizationService.supportedLanguages,
+        supportedLanguages: this._localizationService.supportedLanguages,
       },
     };
 

@@ -16,7 +16,6 @@ export const jwt = {
 };
 export const inversify = { Container, ContainerModule };
 
-
 export const zustand = {
   create: create,
   createStore: createStore,

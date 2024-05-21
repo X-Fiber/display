@@ -4,16 +4,16 @@ import { CoreSymbols } from '~symbols';
 
 import type {
   AnyObject,
-  IAuthProvider,
-  IDiscoveryService,
-  IFunctionalityAgent,
-  IHttpAdapter,
-  INavigatorProvider,
-  IStorageProvider,
   IWsAdapter,
-  NDiscoveryService,
-  NFunctionalityAgent,
+  IHttpAdapter,
   NHttpAdapter,
+  IAuthProvider,
+  IStoragePortal,
+  INavigatorPortal,
+  IDiscoveryService,
+  NDiscoveryService,
+  IFunctionalityAgent,
+  NFunctionalityAgent,
 } from '~types';
 
 @injectable()
@@ -84,7 +84,7 @@ export class FunctionalityAgent implements IFunctionalityAgent {
         D extends string = string,
         RO extends string = string,
         DA = any,
-        RE = any,
+        RE = any
       >(
         service: S,
         domain: D,
@@ -98,17 +98,17 @@ export class FunctionalityAgent implements IFunctionalityAgent {
           data: undefined,
           headers: undefined,
           params: undefined,
-          queries: undefined
-        }
+          queries: undefined,
+        };
 
         if (config) {
           if (config.method) options.method = config.method;
-          if (config.scope) options.scope = config.scope
-          if (config.version) options.version = config.version
-          if (config.data) options.data = config.data
-          if (config.headers) options.headers = config.headers
-          if (config.params) options.params = config.params
-          if (config.queries) options.queries = config.queries
+          if (config.scope) options.scope = config.scope;
+          if (config.version) options.version = config.version;
+          if (config.data) options.data = config.data;
+          if (config.headers) options.headers = config.headers;
+          if (config.params) options.params = config.params;
+          if (config.queries) options.queries = config.queries;
         }
 
         return this._httpAdapter.request<S, D, RO, DA, RE>(service, domain, route, {
@@ -118,14 +118,14 @@ export class FunctionalityAgent implements IFunctionalityAgent {
           params: options.params,
           headers: options.headers,
           queries: options.queries,
-          data: options.data
-        })
+          data: options.data,
+        });
       },
     };
   }
 
   public get storage(): NFunctionalityAgent.Storage {
-    const provider = container.get<IStorageProvider>(CoreSymbols.StorageProvider);
+    const provider = container.get<IStoragePortal>(CoreSymbols.StoragePortal);
 
     return {
       localStorage: provider.localStorage,
@@ -134,7 +134,7 @@ export class FunctionalityAgent implements IFunctionalityAgent {
   }
 
   public get navigator(): NFunctionalityAgent.Navigator {
-    const provider = container.get<INavigatorProvider>(CoreSymbols.NavigatorProvider);
+    const provider = container.get<INavigatorPortal>(CoreSymbols.NavigatorPortal);
 
     return {
       cookieEnabled: provider.cookieEnabled,

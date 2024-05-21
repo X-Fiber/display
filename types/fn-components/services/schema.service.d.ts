@@ -1,20 +1,33 @@
 import { ReactElement } from 'react';
 
-import { Zustand } from '../../packages';
-import { AnyFunction } from '../../utils';
+import type { Zustand, Joi } from '../../packages';
+import type { AnyFunction, KeyStringLiteralBuilder, NestedObject } from '../../utils';
 
 import type { IFunctionalityAgent, ISchemaAgent } from '../../ba-communication';
 import type { IAbstractService } from './abstract.service';
 import type { NStoreService } from './store.service';
 import type { NWsAdapter } from '../adapters';
 
-import Joi from 'joi';
-
 export interface ISchemeService extends IAbstractService {
   readonly services: NSchemaService.BusinessScheme;
 
-  getController<T>(service:string, domain: string, controller: string): T
-  getStore(service: string, domain: string):any
+  getController<T>(service: string, domain: string): T;
+  getDictionary<DICT extends NestedObject = NestedObject>(
+    service: string,
+    domain: string,
+    language: string
+  ): DICT;
+  getResource<DICT extends NestedObject = NestedObject>(
+    service: string,
+    domain: string,
+    resource: KeyStringLiteralBuilder<DICT>,
+    language: string,
+    substitutions?: Record<string, string>
+  ): string;
+  getValidator<T extends Record<string, unknown>>(
+    service: string,
+    domain: string
+  ): NSchemaService.ValidateObject<T>;
 }
 
 export namespace NSchemaService {
@@ -24,11 +37,11 @@ export namespace NSchemaService {
         store: any;
       }
     : A extends 'private'
-      ? {
-          store: any;
-          user: U;
-        }
-      : never;
+    ? {
+        store: any;
+        user: U;
+      }
+    : never;
 
   export type Agents = {
     fnAgent: IFunctionalityAgent;
@@ -48,17 +61,17 @@ export namespace NSchemaService {
     agents: NSchemaService.Agents,
     context: Context<A>,
     data: any
-  ) => any
+  ) => any;
 
   export type Controller = {
-    scope: AuthScope
-    handler: ControllerHandler
-  }
+    scope: AuthScope;
+    handler: ControllerHandler;
+  };
 
   export type SubscriberHandler = <A extends AuthScope = AuthScope, D = any, R = any>(
     agents: NSchemaService.Agents,
     context: Context<A>,
-    payload: D,
+    payload: D
   ) => Promise<R | void>;
 
   export type EmitterEvent<E extends string = string> = {
@@ -73,7 +86,7 @@ export namespace NSchemaService {
     S extends string = string,
     D extends string = string,
     E extends string = string,
-    P = any,
+    P = any
   > = {
     service: S;
     domain: D;
@@ -84,8 +97,6 @@ export namespace NSchemaService {
     payload: P;
   };
 
-
-
   export type Dictionary = Record<string, Dictionary | string>;
 
   export type ViewHandler<A extends AuthScope, P = unknown> = (
@@ -94,17 +105,18 @@ export namespace NSchemaService {
     props: P
   ) => ReactElement<P>;
 
-  export type ValidateErrors = Array<{
-    message: string;
-    key: string;
-    value: string;
-  }>;
+  export type Localization = {
+    getResource: ISchemaAgent['getResource'];
+  };
 
-  export type ValidatorHandler<I = unknown> = (
+  export type ValidatorHandler<I = any> = (
     provider: Joi.Root,
-    localization: unknown,
-    data: I
-  ) => ValidateErrors | void;
+    localization: Localization
+  ) => Joi.ObjectSchema<I>;
+
+  export type ValidateObject<T extends Record<string, unknown>> = {
+    [key in keyof T]: () => Joi.ObjectSchema<T[key]>;
+  };
 
   export type Documents = {
     controller: Map<string, Controller>;

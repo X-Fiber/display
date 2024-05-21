@@ -1,9 +1,4 @@
-import type {
-  AnyFunction,
-  NSchemaLoader,
-  NSchemaService,
-  NStorybookLoader,
-} from '~types';
+import type { AnyFunction, NSchemaLoader, NSchemaService, NStorybookLoader } from '~types';
 
 export const setController = <S extends string>(
   structure: NSchemaLoader.ControllerStructure<S>
@@ -18,7 +13,7 @@ export const setSubscriber = <S extends Record<string, unknown>>(
 };
 
 export const setDictionary = <L extends string, D extends NSchemaService.Dictionary>(
-  language: L,
+  language: L | L[],
   dictionary: D
 ): NSchemaLoader.DictionaryStructure<L, D> => {
   return { language, dictionary };

@@ -39,10 +39,10 @@ export namespace NWsAdapter {
   export type EventPayload<E extends EventType = EventType> = E extends 'session:to:session'
     ? SessionToSession
     : E extends 'session:to:room'
-      ? SessionToRoom
-      : E extends 'session:to:service'
-        ? SessionToService
-        : never;
+    ? SessionToRoom
+    : E extends 'session:to:service'
+    ? SessionToService
+    : never;
 
   export type Event<T extends EventType = EventType, D = unknown> = {
     service: string;

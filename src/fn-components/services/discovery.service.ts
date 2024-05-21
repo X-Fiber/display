@@ -1,12 +1,7 @@
 import { injectable } from '~packages';
-
 import { AbstractService } from './abstract.service';
 
-import type {
-  IDiscoveryService,
-  NDiscoveryService,
-  AnyObject, ExtendedRecordObject
-} from '~types';
+import type { IDiscoveryService, NDiscoveryService, AnyObject, NestedObject } from '~types';
 
 @injectable()
 export class DiscoveryService extends AbstractService implements IDiscoveryService {
@@ -14,8 +9,7 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
   private _CONFIG: NDiscoveryService.EnvsConfig | undefined;
 
   protected init(): boolean {
-
-    this._CONFIG = this._parseConfig() as NDiscoveryService.EnvsConfig
+    this._CONFIG = this._parseConfig() as NDiscoveryService.EnvsConfig;
 
     return true;
   }
@@ -33,7 +27,7 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
           if (index === keys.length - 1) {
             obj[currentKey] = value;
           } else {
-            return obj[currentKey] = obj[currentKey] || {};
+            return (obj[currentKey] = obj[currentKey] || {});
           }
         }, parsedEnv);
         return parsedEnv;
@@ -194,7 +188,7 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
     name = scope === 'schema' ? `applications.${name}` : name;
     const names = name.split('.');
 
-    let record: ExtendedRecordObject | string = {}
+    let record: NestedObject | string = {};
     for (const key of names) {
       if (record && typeof record === 'object') {
         record = record[key];

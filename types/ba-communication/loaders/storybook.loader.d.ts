@@ -11,9 +11,9 @@ export interface IStorybookLoader {
 }
 
 export namespace NStorybookLoader {
-  export type ComponentStructure = {
+  export type ComponentStructure<P = any> = {
     name: string;
-    component: NStorybookService.Component;
+    component: NStorybookService.Component<P>;
   };
 
   export type SpaceStructure = {

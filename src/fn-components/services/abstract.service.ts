@@ -1,5 +1,6 @@
 import { injectable } from '~packages';
-import { IAbstractService } from '~types';
+
+import type { IAbstractService } from '~types';
 
 @injectable()
 export abstract class AbstractService implements IAbstractService {

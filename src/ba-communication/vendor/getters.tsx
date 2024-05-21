@@ -15,7 +15,7 @@ export type ComponentProps<
   S extends string = string,
   D extends string = string,
   N extends string = string,
-  P = any,
+  P = any
 > = {
   storybook: S;
   space: D;
@@ -27,12 +27,11 @@ export const Component = <
   S extends string = string,
   D extends string = string,
   N extends string = string,
-  P = any,
+  P = any
 >(
   cProps: ComponentProps<S, D, N, P>
 ): any => {
   const { storybook, space, component } = cProps;
-
 
   const services = container.get<IStorybookLoader>(CoreSymbols.StorybookLoader).storybooks;
 
@@ -54,14 +53,14 @@ export const Component = <
     );
   }
 
-  return cProps.props ? compo(cProps.props) : compo();
+  return cProps.props ? compo(cProps.props) : compo(undefined);
 };
 
 export type ViewProps<
   S extends string = string,
   D extends string = string,
   V extends string = string,
-  P = never,
+  P = never
 > = {
   service: S;
   domain: D;
@@ -73,7 +72,7 @@ export const View = <
   S extends string = string,
   D extends string = string,
   V extends string = string,
-  P = never,
+  P = never
 >(
   viewProps: ViewProps<S, D, V, P>
 ): any => {

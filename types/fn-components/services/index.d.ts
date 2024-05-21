@@ -5,4 +5,4 @@ export type * from './localization.service';
 export type * from './session.service';
 export type * from './store.service';
 export type * from './storybook.service';
-export type * from './combination.service'
+export type * from './combination.service';

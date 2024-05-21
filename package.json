@@ -1,6 +1,6 @@
 {
   "name": "@x-fiber/display",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Display kernel for building a web-client business schemes running on a X-Fiber platform.",
   "main": "index.js",
   "types": "index.d.ts",

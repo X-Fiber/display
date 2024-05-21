@@ -1,4 +1,4 @@
-import type { AnyFunction, AnyObject, ExtendedRecordObject } from '../../utils';
+import type { AnyFunction, ExtendedRecordObject } from '../../utils';
 import type { NSchemaService } from '../../fn-components';
 
 export interface ISchemaLoader {
@@ -11,11 +11,11 @@ export interface ISchemaLoader {
 
 export namespace NSchemaLoader {
   export type ControllerStructure<S extends string> = {
-    [key in S]: NSchemaService.Controller
-  }
+    [key in S]: NSchemaService.Controller;
+  };
 
   export type SubscriberStructure<N extends Record<string, unknown>> = {
-    [K in keyof N]: N[K] extends infer I ? NSchemaService.SubscriberHandler<I> : never
+    [K in keyof N]: N[K] extends infer I ? NSchemaService.SubscriberHandler<I> : never;
   };
 
   export type StoreStructure<B = any, A = any> = NSchemaService.Store<B, A>;
@@ -38,7 +38,7 @@ export namespace NSchemaLoader {
   };
 
   export type DictionaryStructure<L extends string, D extends ExtendedRecordObject> = {
-    language: L;
+    language: L | L[];
     dictionary: D;
   };
 

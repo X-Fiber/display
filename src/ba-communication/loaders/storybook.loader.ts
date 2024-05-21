@@ -1,5 +1,6 @@
 import { injectable } from '~packages';
-import { IStorybookLoader, NStorybookLoader, NStorybookService } from '~types';
+
+import type { IStorybookLoader, NStorybookLoader, NStorybookService } from '~types';
 
 @injectable()
 export class StorybookLoader implements IStorybookLoader {

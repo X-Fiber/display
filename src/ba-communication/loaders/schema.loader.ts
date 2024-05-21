@@ -2,7 +2,7 @@ import { injectable } from '~packages';
 
 import type {
   AnyFunction,
-  ExtendedRecordObject,
+  NestedObject,
   ISchemaLoader,
   NSchemaLoader,
   NSchemaService,
@@ -45,11 +45,10 @@ export class SchemaLoader implements ISchemaLoader {
       return;
     }
 
-
     const documents: NSchemaService.Documents = {
       controller: new Map<string, NSchemaService.Controller>(),
       emitter: new Map<string, NSchemaService.EmitterEvent>(),
-      dictionaries: new Map<string, ExtendedRecordObject>(),
+      dictionaries: new Map<string, NestedObject>(),
       store: null,
       views: new Map<string, NSchemaService.ViewHandler<'public'>>(),
       validator: new Map<string, NSchemaService.ValidatorHandler>(),
@@ -78,7 +77,7 @@ export class SchemaLoader implements ISchemaLoader {
       documents.helper = this._setHelper(structure.documents.helper);
     }
 
-    sService.set(structure.name, documents)
+    sService.set(structure.name, documents);
   }
 
   private _setController(
@@ -109,15 +108,25 @@ export class SchemaLoader implements ISchemaLoader {
 
   private _setDictionary(
     structure:
-      | NSchemaLoader.DictionaryStructure<string, Record<string, ExtendedRecordObject>>
-      | NSchemaLoader.DictionaryStructure<string, Record<string, ExtendedRecordObject>>[]
+      | NSchemaLoader.DictionaryStructure<string, Record<string, NestedObject>>
+      | NSchemaLoader.DictionaryStructure<string, Record<string, NestedObject>>[]
   ): Map<string, NSchemaService.Dictionary> {
     const collection = new Map<string, NSchemaService.Dictionary>();
 
     if (Array.isArray(structure)) {
-      structure.forEach((dictionary) => collection.set(dictionary.language, dictionary.dictionary));
+      structure.forEach((dictionary) => {
+        if (Array.isArray(dictionary.language)) {
+          dictionary.language.forEach((l) => collection.set(l, dictionary.dictionary));
+        } else {
+          collection.set(dictionary.language, dictionary.dictionary);
+        }
+      });
     } else {
-      collection.set(structure.language, structure.dictionary);
+      if (Array.isArray(structure.language)) {
+        structure.language.forEach((l) => collection.set(l, structure.dictionary));
+      } else {
+        collection.set(structure.language, structure.dictionary);
+      }
     }
     return collection;
   }

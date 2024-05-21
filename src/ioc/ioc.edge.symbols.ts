@@ -23,11 +23,12 @@ export const CoreSymbols = {
   // Factories
   StorageFactory: Symbol('StorageFactory'),
 
-  // Providers
-  StorageProvider: Symbol('StorageProvider'),
-  NavigatorProvider: Symbol('NavigatorProvider'),
-  AuthProvider: Symbol('AuthProvider'),
+  // Portals
+  StoragePortal: Symbol('StoragePortal'),
+  NavigatorPortal: Symbol('NavigatorPortal'),
 
+  // Providers
+  AuthProvider: Symbol('AuthProvider'),
 
   // Agents
   FunctionalityAgent: Symbol('FunctionalityAgent'),

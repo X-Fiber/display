@@ -1,10 +1,10 @@
 import { injectable, inject } from '~packages';
 import { CoreSymbols } from '~symbols';
 
-import type { IStorageFactory, IStorageProvider, IStorageStrategy } from '~types';
+import type { IStorageFactory, IStoragePortal, IStorageStrategy } from '~types';
 
 @injectable()
-export class StorageProvider implements IStorageProvider {
+export class StoragePortal implements IStoragePortal {
   constructor(
     @inject(CoreSymbols.StorageFactory)
     private readonly _storageFactory: IStorageFactory

@@ -8,19 +8,23 @@ import { AbstractAdapter } from './abstract.adapter';
 
 import type {
   AnyFunction,
-  IStorageProvider,
+  IStoragePortal,
   ISchemaAgent,
   IFunctionalityAgent,
   IWsAdapter,
   NWsAdapter,
   ISchemeService,
   NSchemaService,
-  NSessionService, IStoreService, NAbstractAdapter, IDiscoveryService, HttpMethod,
+  NSessionService,
+  IStoreService,
+  NAbstractAdapter,
+  IDiscoveryService,
+  HttpMethod,
 } from '~types';
 
 @injectable()
 export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
-  protected _config: NAbstractAdapter.WsConfig
+  protected _config: NAbstractAdapter.WsConfig;
 
   private _CONNECTION: WebSocket | undefined;
 
@@ -30,10 +34,9 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
     @inject(CoreSymbols.SchemeService)
     private readonly _schemaService: ISchemeService,
     @inject(CoreSymbols.StoreService)
-    private readonly _storeService: IStoreService,
+    private readonly _storeService: IStoreService
   ) {
-    super()
-
+    super();
 
     this._config = {
       enable: false,
@@ -44,45 +47,60 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
       },
       refresh: {
         url: 'v1/update-token',
-        method: 'PATCH'
+        method: 'PATCH',
       },
       http: {
         protocol: 'http',
         host: '0.0.0.0',
-        port: 11000
-      }
-    }
+        port: 11000,
+      },
+    };
   }
 
   private _setConfig(): NAbstractAdapter.WsConfig {
     return {
       enable: this._discoveryService.getBoolean('adapters.http.enable', this._config.enable),
       connect: {
-        protocol: this._discoveryService.getString('adapters.ws.connect.protocol', this._config.connect.protocol) as 'ws' | 'wss',
-        host: this._discoveryService.getString('adapters.ws.connect.host', this._config.connect.host),
-        port: this._discoveryService.getNumber('adapters.ws.connect.port', this._config.connect.port),
+        protocol: this._discoveryService.getString(
+          'adapters.ws.connect.protocol',
+          this._config.connect.protocol
+        ) as 'ws' | 'wss',
+        host: this._discoveryService.getString(
+          'adapters.ws.connect.host',
+          this._config.connect.host
+        ),
+        port: this._discoveryService.getNumber(
+          'adapters.ws.connect.port',
+          this._config.connect.port
+        ),
       },
       refresh: {
-        url: this._discoveryService.getString(
-          'adapters.http.urls.api',
-          this._config.refresh.url
-        ),
+        url: this._discoveryService.getString('adapters.http.urls.api', this._config.refresh.url),
         method: this._discoveryService.getString(
           'adapters.http.urls.api',
           this._config.refresh.method
         ) as HttpMethod,
       },
       http: {
-        protocol: this._discoveryService.getString('adapters.http.connect.protocol', this._config.connect.protocol),
-        host: this._discoveryService.getString('adapters.http.connect.host', this._config.connect.host),
-        port: this._discoveryService.getNumber('adapters.http.connect.port', this._config.connect.port),
-      }
-    }
+        protocol: this._discoveryService.getString(
+          'adapters.http.connect.protocol',
+          this._config.connect.protocol
+        ),
+        host: this._discoveryService.getString(
+          'adapters.http.connect.host',
+          this._config.connect.host
+        ),
+        port: this._discoveryService.getNumber(
+          'adapters.http.connect.port',
+          this._config.connect.port
+        ),
+      },
+    };
   }
 
   public init(): boolean {
     if (!this._config.enable) return false;
-    this._config = this._setConfig()
+    this._config = this._setConfig();
 
     const { protocol, port, host } = this._config.connect;
 
@@ -96,7 +114,7 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
 
       if (window) {
         window.addEventListener('beforeunload', () => {
-          const { localStorage } = container.get<IStorageProvider>(CoreSymbols.StorageProvider);
+          const { localStorage } = container.get<IStoragePortal>(CoreSymbols.StoragePortal);
 
           const connectionId = localStorage.getString('websocket-connection-id', '');
           if (connectionId && connectionId.length > 0) {
@@ -147,7 +165,6 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
 
     if (Guards.isEventStructure(data)) {
       if (Guards.isCorrectEvent(data.type)) {
-
         // TODO: implement auth interceptor
 
         const sStorage = this._schemaService.services.get(data.service);

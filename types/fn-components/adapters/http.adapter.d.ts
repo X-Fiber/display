@@ -11,7 +11,7 @@ export interface IHttpAdapter extends IAbstractAdapter {
     D extends string = string,
     R extends string = string,
     DA = any,
-    RES = any,
+    RES = any
   >(
     service: S,
     domain: D,

@@ -1,7 +1,7 @@
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'OPTIONS' | 'TRACE' | 'HEAD';
 export type StrSym = string | symbol;
-export type ExtendedRecordObject = Record<string, ExtendedRecordObject | string>;
 
+export type Str = string;
 export type StringObject = Record<string, string>;
 export type NestedObject = Record<string, NestedObject | string>;
 export type UnknownObject = Record<string, unknown>;

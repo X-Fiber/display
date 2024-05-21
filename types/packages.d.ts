@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { StateCreator as ZStateCreator } from 'zustand';
-import {
+import joi from 'joi';
+
+import type { StateCreator as ZStateCreator } from 'zustand';
+import type {
   Mutate as ZMutate,
   StoreApi as ZStoreApi,
   StoreMutatorIdentifier as ZStoreMutatorIdentifier,
 } from 'zustand/esm/vanilla';
-export * as Zod from 'zod';
 
 export namespace Axios {
   export type AxiosRequestConfig<DATA = any> = axios.AxiosRequestConfig<DATA>;
@@ -25,7 +26,7 @@ export namespace Zustand {
     T,
     Mis extends [StoreMutatorIdentifier | string, unknown][] = [],
     Mos extends [StoreMutatorIdentifier | string, unknown][] = [],
-    U = T,
+    U = T
   > = ((
     setState: Get<Mutate<StoreApi<E>, Mis>, 'setState', never>,
     getState: Get<Mutate<StoreApi<E>, Mis>, 'getState', never>,
@@ -37,12 +38,17 @@ export namespace Zustand {
   export type StateCreator<
     T,
     Mis extends [StoreMutatorIdentifier, unknown][] = [],
-    Mos extends [StoreMutatorIdentifier, unknown][] = [],
+    Mos extends [StoreMutatorIdentifier, unknown][] = []
   > = ZStateCreator<T, Mis, Mos, T>;
 
   export type PersistStateCreator<
     T,
     Mps extends [StoreMutatorIdentifier, unknown][] = [],
-    Mcs extends [StoreMutatorIdentifier, unknown][] = [],
+    Mcs extends [StoreMutatorIdentifier, unknown][] = []
   > = StateCreator<T, Mps, [['zustand/persist', T], ...Mcs], T>;
+}
+
+export namespace Joi {
+  export type Root = joi.Root;
+  export type ObjectSchema<T = any> = joi.ObjectSchema<T>;
 }
