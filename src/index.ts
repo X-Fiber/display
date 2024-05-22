@@ -1,6 +1,6 @@
 import { container } from '~container';
 import { CoreSymbols } from '~symbols';
-import { SCHEME_STORYBOOKS, SCHEME_SERVICES, CORE_EXTENSIONS } from '~common';
+import { SCHEME_STORYBOOKS, SCHEME_SERVICES, CORE_EXTENSIONS, WEB_CLIENT_TYPE } from '~common';
 
 import { IInitiator, ISchemeService, NSchemaLoader, NStorybookLoader } from '~types';
 
@@ -21,7 +21,11 @@ const setExtensions = (extensions: string[]) => {
   CORE_EXTENSIONS.push(...extensions);
 };
 
+const setClientType = (type: 'NextJS' | 'ReactJS' | 'RemixJS') => {
+  WEB_CLIENT_TYPE.type = type;
+};
+
 export * from './fn-components';
 export * from './ba-communication';
 
-export { initiator, setServices, setStorybooks, setExtensions };
+export { initiator, setServices, setStorybooks, setExtensions, setClientType };

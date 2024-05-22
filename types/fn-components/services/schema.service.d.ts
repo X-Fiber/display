@@ -76,7 +76,7 @@ export namespace NSchemaService {
 
   export type EmitterEvent<E extends string = string> = {
     name: E;
-    type: NWsAdapter.EventType;
+    type: NWsAdapter.AllEventType;
     scope: AuthScope;
     version: NWsAdapter.Version;
     handler: SubscriberHandler;
@@ -91,7 +91,7 @@ export namespace NSchemaService {
     service: S;
     domain: D;
     event: E;
-    type: NWsAdapter.EventType;
+    type: NWsAdapter.AllEventType;
     scope: AuthScope;
     version: NWsAdapter.Version;
     payload: P;

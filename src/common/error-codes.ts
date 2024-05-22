@@ -1,3 +1,19 @@
+export const ErrorCodes = {
+  fn: {
+    HttpAdapter: {},
+    WsAdapter: {
+      INVALID_PROTOCOL: '0001.0002.0001',
+      INVALID_STRUCTURE: '0001.0002.0002',
+      INVALID_EVENT_TYPE: '0001.0002.0003',
+      SERVICE_NOT_FOUND: '0001.0002.0004',
+      DOMAIN_NOT_FOUND: '0001.0002.0005',
+      EVENT_NOT_FOUND: '0001.0002.0006',
+      CATCH_ERROR: '0001.0002.9999',
+    },
+  },
+  ba: {},
+} as const;
+
 export const ErrorCode = {
   handshake: {
     INVALID_STRINGIFY_OBJECT: '0000.0001',

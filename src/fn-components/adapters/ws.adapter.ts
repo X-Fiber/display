@@ -1,30 +1,30 @@
-import { injectable, inject } from '~packages';
+import { injectable, inject, EventEmitter } from '~packages';
 import { container } from '~container';
 import { CoreSymbols } from '~symbols';
-import { ErrorCode } from '~common';
+import { ErrorCodes } from '~common';
 import { Guards } from '~utils';
 
 import { AbstractAdapter } from './abstract.adapter';
 
 import type {
+  HttpMethod,
   AnyFunction,
-  IStoragePortal,
   ISchemaAgent,
   IFunctionalityAgent,
   IWsAdapter,
   NWsAdapter,
   ISchemeService,
   NSchemaService,
-  NSessionService,
   IStoreService,
   NAbstractAdapter,
   IDiscoveryService,
-  HttpMethod,
 } from '~types';
 
 @injectable()
 export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
   protected _config: NAbstractAdapter.WsConfig;
+  protected _emitter = new EventEmitter();
+  private _messageQueue: Array<string> = [];
 
   private _CONNECTION: WebSocket | undefined;
 
@@ -59,7 +59,7 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
 
   private _setConfig(): NAbstractAdapter.WsConfig {
     return {
-      enable: this._discoveryService.getBoolean('adapters.http.enable', this._config.enable),
+      enable: this._discoveryService.getBoolean('adapters.ws.enable', this._config.enable),
       connect: {
         protocol: this._discoveryService.getString(
           'adapters.ws.connect.protocol',
@@ -99,29 +99,33 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
   }
 
   public init(): boolean {
-    if (!this._config.enable) return false;
     this._config = this._setConfig();
+
+    if (!this._config.enable) return false;
 
     const { protocol, port, host } = this._config.connect;
 
     if (protocol !== 'ws' && protocol !== 'wss') {
-      throw new Error(`Websocket protocol must be "ws" or "wss" but define - "${protocol}"`);
+      throw new Error(
+        JSON.stringify({
+          code: ErrorCodes.fn.WsAdapter.INVALID_PROTOCOL,
+          message: `Websocket protocol must be 'ws' or 'wss' but define - '${protocol}'`,
+        })
+      );
     }
 
     try {
-      this._CONNECTION = new WebSocket(`${protocol}://${host}:${port}`);
-      this._CONNECTION.addEventListener('message', async (event) => this._listen(event));
-
-      if (window) {
-        window.addEventListener('beforeunload', () => {
-          const { localStorage } = container.get<IStoragePortal>(CoreSymbols.StoragePortal);
-
-          const connectionId = localStorage.getString('websocket-connection-id', '');
-          if (connectionId && connectionId.length > 0) {
-            this._send('upload:page', { connectionId });
-            localStorage.removeItem('websocket-connection-id');
+      if (typeof window !== 'undefined') {
+        this._CONNECTION = new WebSocket(`${protocol}://${host}:${port}`);
+        this._CONNECTION.onopen = (ev) => {
+          if (this._CONNECTION?.readyState === WebSocket.OPEN) {
+            while (this._messageQueue.length > 0) {
+              this._CONNECTION.send(this._messageQueue.shift() as string);
+            }
           }
-        });
+        };
+
+        this._CONNECTION.addEventListener('message', async (event) => this._message(event));
       }
 
       return true;
@@ -138,153 +142,194 @@ export class WsAdapter extends AbstractAdapter<'ws'> implements IWsAdapter {
     }
   }
 
-  public get connection() {
-    if (!this._CONNECTION) {
-      throw new Error(`Websocket connection is undefined.`);
-    }
+  private async _message(event: MessageEvent): Promise<void> {
+    let data: unknown;
 
-    return this._CONNECTION;
-  }
-
-  private async _listen(event: MessageEvent): Promise<void> {
-    let data: object | null;
     try {
       data = JSON.parse(event.data);
     } catch {
-      data = null;
-    }
-
-    if (!data) {
-      this._send('handshake.error', {
-        code: ErrorCode.handshake.INVALID_STRINGIFY_OBJECT,
+      this._send('handshake.error', 'validation', {
+        code: ErrorCodes.fn.WsAdapter.INVALID_STRUCTURE,
         message: 'WebSocket data must me stringify object',
       });
-
       return;
     }
 
-    if (Guards.isEventStructure(data)) {
-      if (Guards.isCorrectEvent(data.type)) {
-        // TODO: implement auth interceptor
+    if (!Guards.isEventStructure(data)) {
+      this._send('validation.error.invalid_data_structure', 'validation', {
+        code: ErrorCodes.fn.WsAdapter.INVALID_STRUCTURE,
+        message: `Invalid data structure. Structure must be object and contain event type with payload information.`,
+      });
+      return;
+    }
 
-        const sStorage = this._schemaService.services.get(data.service);
-        if (!sStorage) {
-          this.connection.send(
-            JSON.stringify({
-              event: 'validation:service:not_found',
-              payload: {
-                code: '0001.0001',
-                message: `Service "${data.service}" not found in business scheme collection.`,
-              },
-            })
-          );
-          return;
-        }
+    if (!Guards.isCorrectEvent(data.event)) {
+      this._send('validation.error.unknown_event', 'validation', {
+        code: ErrorCodes.fn.WsAdapter.INVALID_EVENT_TYPE,
+        message: `Event type '${data.event}' unsupported`,
+      });
+      return;
+    }
 
-        const dStorage = sStorage.get(data.domain);
-        if (!dStorage) {
-          this.connection.send(
-            JSON.stringify({
-              event: 'validation:domain:not_found',
-              payload: {
-                code: '0001.0002',
-                message: `Domain "${data.domain}" not found in service "${data.service}".`,
-              },
-            })
-          );
-          return;
-        }
-
-        const name = this._getEventName(data.type, data.version, data.event);
-        const eStorage = dStorage.emitter.get(name);
-        if (!eStorage) {
-          this.connection.send(
-            JSON.stringify({
-              event: 'validation:event:not_found',
-              payload: {
-                code: '0001.0003',
-                message: `Event name "${data.event}" with version "${data.version}" and type "${data.type}" not found in domain "${data.domain}" in service "${data.service}".`,
-              },
-            })
-          );
-          return;
-        }
-
-        const context: NSchemaService.Context = {
-          store: this._storeService.rootStore,
-          user: {},
-        };
-
-        switch (eStorage.scope) {
-          case 'public':
-            break;
-          case 'private':
-            break;
-        }
-
-        const agents: NSchemaService.Agents = {
-          fnAgent: container.get<IFunctionalityAgent>(CoreSymbols.FunctionalityAgent),
-          schemaAgent: container.get<ISchemaAgent>(CoreSymbols.SchemaAgent),
-        };
-
-        const result = await eStorage.handler(agents, context, data.payload);
-        if (result) {
-          // this._emitter.emit(name, result);
-        } else {
-          // this._emitter.emit(name);
-        }
-      } else {
-        // TODO: resolve Guards.isCorrectEvent(data.type) false case
-      }
-    } else {
-      // TODO: resolve Guards.isEventStructure(data) false case
+    switch (data.kind) {
+      case 'handshake':
+        this._callHandshake(data.payload);
+        break;
+      case 'validation':
+        this._callValidate(data.payload);
+        break;
+      case 'communication':
+        await this._callSchemaHandler(data.event, data.payload);
+        break;
+      default:
+        this._send('validation.error.unknown_event_kind', 'validation', {
+          code: ErrorCodes.fn.WsAdapter.INVALID_EVENT_TYPE,
+          message: `Event kind '${data.kind}' not supported.`,
+        });
     }
   }
 
+  private _callHandshake(payload: NWsAdapter.ServerHandshakePayload) {
+    this._publish('handshake', payload);
+  }
+
+  private _callValidate(payload: NWsAdapter.ServerHandshakePayload) {
+    this._publish('validation', payload);
+  }
+
+  private async _callSchemaHandler(
+    event: NWsAdapter.AllEventType,
+    payload: NWsAdapter.ServerEventPayload
+  ): Promise<void> {
+    const sStorage = this._schemaService.services.get(payload.service);
+    if (!sStorage) {
+      this._send('validation.error.service_not_found', 'validation', {
+        code: ErrorCodes.fn.WsAdapter.SERVICE_NOT_FOUND,
+        message: `Service "${payload.service}" not found in business scheme collection.`,
+      });
+      return;
+    }
+
+    const dStorage = sStorage.get(payload.domain);
+    if (!dStorage) {
+      this._send('validation.error.domain_not_found', 'validation', {
+        code: ErrorCodes.fn.WsAdapter.DOMAIN_NOT_FOUND,
+        message: `Domain "${payload.domain}" not found in service "${payload.service}".`,
+      });
+      return;
+    }
+
+    const name = this._getEventName(event, payload.version, payload.event);
+    const eStorage = dStorage.emitter.get(name);
+    if (!eStorage) {
+      this._send('validation.error.event_not_found', 'validation', {
+        code: ErrorCodes.fn.WsAdapter.EVENT_NOT_FOUND,
+        message: `Event name "${payload.event}" with version "${payload.version}" and type "${event}" not found in domain "${payload.domain}" in service "${payload.service}".`,
+      });
+      return;
+    }
+
+    const context: NSchemaService.Context = {
+      store: this._storeService.rootStore,
+      user: {},
+    };
+
+    // TODO: implement scope
+    switch (eStorage.scope) {
+      case 'public':
+        break;
+      case 'private':
+        break;
+    }
+
+    const agents: NSchemaService.Agents = {
+      fnAgent: container.get<IFunctionalityAgent>(CoreSymbols.FunctionalityAgent),
+      schemaAgent: container.get<ISchemaAgent>(CoreSymbols.SchemaAgent),
+    };
+
+    try {
+      const result = await eStorage.handler(agents, context, payload.data);
+      result ? this._emitter.emit(name, result) : this._emitter.emit(name);
+    } catch (e) {
+      throw new Error(
+        JSON.stringify({
+          code: ErrorCodes.fn.WsAdapter.CATCH_ERROR,
+          message: e,
+        })
+      );
+    } finally {
+      this._publish('communication');
+    }
+  }
+
+  public subscribe(event: NWsAdapter.EmitterEvent, listener: (...args: any) => void): void {
+    this._emitter.on(event, listener);
+  }
+
+  public unsubscribe(event: NWsAdapter.EmitterEvent, listener?: (...args: any) => void): void {
+    this._emitter.off(event, listener);
+  }
+
   public once<E extends string = string>(
-    type: NWsAdapter.EventType,
+    type: NWsAdapter.PublicEventType,
     version: string,
     event: E,
     listener: AnyFunction
   ): void {
-    const name = this._getEventName(type, version, event);
-    // this._emitter.once(name, listener);
+    this._emitter.once(this._getEventName(type, version, event), listener);
   }
 
-  public subscribe<E extends string = string>(
-    type: NWsAdapter.EventType,
+  public on<E extends string = string>(
+    type: NWsAdapter.PublicEventType,
     version: string,
     event: E,
     listener: AnyFunction
   ): void {
-    const name = this._getEventName(type, version, event);
-    // this._emitter.on(name, listener);
+    this._emitter.on(this._getEventName(type, version, event), listener);
   }
 
-  public publish(event: NSchemaService.ServerEvent): void {
-    this.connection.send(
-      JSON.stringify({
-        event: event.type,
-        payload: {
-          service: event.service,
-          domain: event.domain,
-          event: event.event,
-          scope: event.scope,
-          version: event.version,
-          payload: event.payload,
-        },
-      })
-    );
+  private _publish(event: NWsAdapter.EmitterEvent, payload?: any): void {
+    this._emitter.emit(event, payload);
   }
 
-  private _getEventName(type: string, version: string, event: string) {
+  public sendToSession<T = any>(payload: NWsAdapter.SessionToSessionPayload<T>): void {
+    this._publicSend<'session:to:session', T>('session:to:session', payload);
+  }
+
+  public sendToRoom<T = any>(payload: NWsAdapter.SessionToRoomPayload<T>): void {
+    this._publicSend<'session:to:room', T>('session:to:room', payload);
+  }
+
+  public sendToService<T = any>(payload: NWsAdapter.SessionToServicePayload<T>): void {
+    this._publicSend<'session:to:service', T>('session:to:service', payload);
+  }
+
+  private _publicSend<E extends NWsAdapter.PublicEventType, P = any>(
+    event: E,
+    payload: NWsAdapter.EventPayload<E, P>
+  ): void {
+    const message = JSON.stringify({ event, kind: 'communication', payload });
+    if (this._CONNECTION?.readyState === WebSocket.OPEN) {
+      this._CONNECTION?.send(message);
+    } else {
+      this._messageQueue.push(message);
+    }
+  }
+
+  private _send<E extends NWsAdapter.AllEventType, P = any>(
+    event: E,
+    kind: NWsAdapter.EventKind,
+    payload: NWsAdapter.AllEventPayload<E, P>
+  ): void {
+    const message = JSON.stringify({ event, kind, payload });
+    if (this._CONNECTION?.readyState === WebSocket.OPEN) {
+      this._CONNECTION?.send(message);
+    } else {
+      this._messageQueue.push(message);
+    }
+  }
+
+  private _getEventName(type: string, version: string, event: string): string {
     return `${type}:${version}:${event}`;
-  }
-
-  private _send<E extends NSessionService.ClientEvent>(
-    event: E,
-    payload: NSessionService.EventPayload<E>
-  ): void {
-    this.connection.send(JSON.stringify({ event, payload }));
   }
 }

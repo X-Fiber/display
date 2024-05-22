@@ -17,12 +17,12 @@ export class Initiator implements IInitiator {
   constructor(
     @inject(CoreSymbols.DiscoveryService)
     private readonly _discoveryService: IDiscoveryService,
+    @inject(CoreSymbols.CombinationService)
+    private readonly _combinationService: ICombinationService,
     @inject(CoreSymbols.SchemeService)
     private readonly _schemeService: ISchemeService,
     @inject(CoreSymbols.StorybookService)
     private readonly _storybookService: IStorybookService,
-    @inject(CoreSymbols.CombinationService)
-    private readonly _combinationService: ICombinationService,
     @inject(CoreSymbols.LocalizationService)
     private readonly _localizationService: ILocalizationService,
     @inject(CoreSymbols.SessionService)

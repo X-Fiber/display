@@ -1,18 +1,23 @@
-import { NAuthProvider, NSessionService, NWsAdapter } from '~types';
+import type { NAuthProvider, NWsAdapter } from '~types';
 
 export class Guards {
-  public static isEventStructure = (x: unknown): x is NWsAdapter.Event => {
+  public static isEventStructure = (x: unknown): x is NWsAdapter.ServerEvent => {
     return typeof x === 'object' && x !== null && 'event' in x && 'payload' in x;
   };
 
-  public static isCorrectEvent = (x: unknown): x is NSessionService.ClientEvent => {
-    return (
-      x === 'handshake' ||
-      x === 'handshake.error' ||
-      x === 'authenticate' ||
-      x === 'session:to:session' ||
-      x === 'broadcast:to:service'
-    );
+  public static isCorrectEvent = (x: string): x is NWsAdapter.AllEventType => {
+    const events: (string | NWsAdapter.AllEventType)[] = [
+      'handshake',
+      'handshake.error',
+      'validation.error.service_not_found',
+      'validation.error.domain_not_found',
+      'validation.error.event_not_found',
+      'session:to:session',
+      'session:to:room',
+      'session:to:service',
+    ];
+
+    return events.includes(x);
   };
 
   public static isJwtAuthPayload = (x: unknown): x is NAuthProvider.JwtAuthStructure<unknown> => {

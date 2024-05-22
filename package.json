@@ -1,6 +1,6 @@
 {
   "name": "@x-fiber/display",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Display kernel for building a web-client business schemes running on a X-Fiber platform.",
   "main": "index.js",
   "types": "index.d.ts",
@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "axios": "^1.6.2",
+    "eventemitter3": "^5.0.1",
     "inversify": "^6.0.2",
     "joi": "^17.13.1",
     "jwt-decode": "^4.0.0",
@@ -57,6 +58,7 @@
     "@babel/core": "^7.23.7",
     "@babel/preset-env": "^7.23.7",
     "@babel/preset-typescript": "^7.23.3",
+    "@types/node": "^20.12.12",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.3.3"
   }

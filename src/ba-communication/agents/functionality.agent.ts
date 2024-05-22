@@ -63,16 +63,45 @@ export class FunctionalityAgent implements IFunctionalityAgent {
     };
   }
 
-  public get event(): NFunctionalityAgent.Event {
+  public get ws(): NFunctionalityAgent.ws {
     return {
+      on: (type, version, event, listener) => {
+        return this._wsAdapter.on(type, version, event, listener);
+      },
       once: (type, version, event, listener) => {
         return this._wsAdapter.once(type, version, event, listener);
       },
-      subscribe: (type, version, event, listener) => {
-        return this._wsAdapter.subscribe(type, version, event, listener);
+      sendToRoom: <T = any>(payload: NFunctionalityAgent.WsRoom<T>): void => {
+        return this._wsAdapter.sendToRoom({
+          data: payload.data ?? null,
+          roomId: payload.roomId,
+          scope: payload.scope ?? 'public',
+          version: payload.version ?? 'v1',
+          service: payload.service,
+          event: payload.event,
+          domain: payload.domain,
+        });
       },
-      publish: (event) => {
-        return this._wsAdapter.publish(event);
+      sendToService: <T = any>(payload: NFunctionalityAgent.WsPayload<T>): void => {
+        return this._wsAdapter.sendToService({
+          data: payload.data ?? null,
+          scope: payload.scope ?? 'public',
+          version: payload.version ?? 'v1',
+          service: payload.service,
+          event: payload.event,
+          domain: payload.domain,
+        });
+      },
+      sendToSession: <T = any>(payload: NFunctionalityAgent.WsSession<T>): void => {
+        this._wsAdapter.sendToSession({
+          data: payload.data ?? null,
+          sessionId: payload.sessionId,
+          scope: payload.scope ?? 'public',
+          version: payload.version ?? 'v1',
+          service: payload.service,
+          event: payload.event,
+          domain: payload.domain,
+        });
       },
     };
   }

@@ -7,6 +7,8 @@ import { create, createStore } from 'zustand';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import { Container, ContainerModule } from 'inversify';
 
+export { EventEmitter } from 'eventemitter3';
+
 export { joi };
 export { axios };
 export { injectable, inject } from 'inversify';

@@ -1,16 +1,18 @@
-import type {
+import {
   IAuthProvider,
   IDiscoveryService,
   IHttpAdapter,
   INavigatorPortal,
   IStoragePortal,
   IWsAdapter,
+  NWsAdapter,
 } from '../../fn-components';
+import * as path from 'node:path';
 
 export interface IFunctionalityAgent {
   readonly auth: NFunctionalityAgent.Auth;
   readonly discovery: NFunctionalityAgent.Discovery;
-  readonly event: NFunctionalityAgent.Event;
+  readonly ws: NFunctionalityAgent.ws;
   readonly route: NFunctionalityAgent.Route;
   readonly storage: NFunctionalityAgent.Storage;
   readonly navigator: NFunctionalityAgent.Navigator;
@@ -34,11 +36,25 @@ export namespace NFunctionalityAgent {
     readonly sessionStorage: IStoragePortal['sessionStorage'];
   };
 
-  export type Event = {
+  export type ws = {
     once: IWsAdapter['once'];
-    subscribe: IWsAdapter['subscribe'];
-    publish: IWsAdapter['publish'];
+    on: IWsAdapter['on'];
+    sendToSession: <T = any>(payload: WsSession<T>) => void;
+    sendToRoom: <T = any>(payload: WsRoom<T>) => void;
+    sendToService: <T = any>(payload: WsPayload<T>) => void;
   };
+
+  export type WsPayload<D> = {
+    version?: NWsAdapter.Version;
+    scope?: NWsAdapter.AuthScope;
+    service: string;
+    domain: string;
+    event: string;
+    data?: D;
+  };
+
+  export type WsSession<D = any> = WsPayload<D> & { sessionId: string };
+  export type WsRoom<D = any> = WsPayload<D> & { roomId: string };
 
   export type Navigator = {
     readonly cookieEnabled: INavigatorPortal['cookieEnabled'];

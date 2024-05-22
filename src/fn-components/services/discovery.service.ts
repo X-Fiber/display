@@ -1,7 +1,10 @@
 import { injectable } from '~packages';
+import dotenv from 'dotenv';
+dotenv.config();
 import { AbstractService } from './abstract.service';
 
 import type { IDiscoveryService, NDiscoveryService, AnyObject, NestedObject } from '~types';
+import { WEB_CLIENT_TYPE } from '~common';
 
 @injectable()
 export class DiscoveryService extends AbstractService implements IDiscoveryService {
@@ -9,8 +12,16 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
   private _CONFIG: NDiscoveryService.EnvsConfig | undefined;
 
   protected init(): boolean {
-    this._CONFIG = this._parseConfig() as NDiscoveryService.EnvsConfig;
-
+    const type: 'NextJS' | 'RemixJS' | 'ReactJS' | undefined = WEB_CLIENT_TYPE.type;
+    if (type) {
+      switch (type) {
+        case 'NextJS':
+          this._CONFIG = this._parseNextJSConfig() as unknown as NDiscoveryService.EnvsConfig;
+          break;
+        default:
+          this._CONFIG = this._parseConfig() as unknown as NDiscoveryService.EnvsConfig;
+      }
+    }
     return true;
   }
 
@@ -32,6 +43,75 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
         }, parsedEnv);
         return parsedEnv;
       }, {});
+  }
+
+  private _parseNextJSConfig() {
+    return {
+      adapters: {
+        http: {
+          enable: process.env.NEXT_PUBLIC__x_fiber__adapters_http_enable,
+          connect: {
+            protocol: process.env.NEXT_PUBLIC__x_fiber__adapters_http_connect_protocol,
+            host: process.env.NEXT_PUBLIC__x_fiber__adapters_http_connect_host,
+            port: process.env.NEXT_PUBLIC__x_fiber__adapters_http_connect_port,
+          },
+          urls: {
+            api: process.env.NEXT_PUBLIC__x_fiber__adapters_http_url_api,
+            exception: process.env.NEXT_PUBLIC__x_fiber__adapters_http_url_exception,
+          },
+          refresh: {
+            url: process.env.NEXT_PUBLIC__x_fiber__adapters_http_refresh_url,
+            method: process.env.NEXT_PUBLIC__x_fiber__adapters_http_refresh_method,
+          },
+        },
+        ws: {
+          enable: process.env.NEXT_PUBLIC__x_fiber__adapters_ws_enable,
+          connect: {
+            protocol: process.env.NEXT_PUBLIC__x_fiber__adapters_ws_connect_protocol,
+            host: process.env.NEXT_PUBLIC__x_fiber__adapters_ws_connect_host,
+            port: process.env.NEXT_PUBLIC__x_fiber__adapters_ws_connect_port,
+          },
+          refresh: {
+            url: process.env.NEXT_PUBLIC__x_fiber__adapters_ws_refresh_url,
+            method: process.env.NEXT_PUBLIC__x_fiber__adapters_ws_refresh_method,
+          },
+        },
+      },
+      services: {
+        auth: {
+          checkAccessDiff: process.env.NEXT_PUBLIC__x_fiber__services_auth_checkAccessDiff,
+        },
+        localization: {
+          fallbackLanguage:
+            process.env.NEXT_PUBLIC__x_fiber__services_localization_fallbackLanguage ?? 'en',
+          defaultLanguage:
+            process.env.NEXT_PUBLIC__x_fiber__services_localization_defaultLanguage ?? 'en',
+          supportedLanguages: process.env
+            .NEXT_PUBLIC__x_fiber__services_localization_supportedLanguages ?? ['en'],
+        },
+      },
+      strategies: {
+        database: {
+          name: '',
+          type: '',
+          enable: false,
+          defaultVersion: 1,
+        },
+      },
+      integrations: {
+        sentry: {
+          enable: false,
+          token: '',
+          logLevel: 'log',
+          tracesSampleRate: 1,
+          replaysSessionSampleRate: 1,
+          replaysOnErrorSampleRate: 1,
+        },
+        mapbox: {
+          token: '',
+        },
+      },
+    };
   }
 
   protected destroy(): void {
@@ -188,7 +268,7 @@ export class DiscoveryService extends AbstractService implements IDiscoveryServi
     name = scope === 'schema' ? `applications.${name}` : name;
     const names = name.split('.');
 
-    let record: NestedObject | string = {};
+    let record: NestedObject | string = this._CONFIG;
     for (const key of names) {
       if (record && typeof record === 'object') {
         record = record[key];
